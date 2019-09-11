@@ -57,11 +57,11 @@ Actor.prototype.init = function(done) {
   this.client.on('ready', _.once(done));
 }
 
-Actor.prototype.emit = function(channel, message) {
+Actor.prototype.emit = function(channel, message, cb) {
   log.debug('Going to publish to redis channel:', channel);
 
   var data = JSON.stringify(message);
-  this.client.publish(channel, data);
+  this.client.publish(channel, data, cb);
 }
 
 module.exports = Actor;
