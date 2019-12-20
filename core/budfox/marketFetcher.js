@@ -17,6 +17,7 @@ const log = require(dirs.core + 'log');
 const exchangeChecker = require(dirs.gekko + 'exchange/exchangeChecker');
 
 const TradeBatcher = require(util.dirs().budfox + 'tradeBatcher');
+const obUtil = require(dirs.core + 'orderbookUtil');
 
 const Fetcher = function(config) {
   if(!_.isObject(config))
@@ -87,6 +88,29 @@ Fetcher.prototype.fetch = function() {
   this.tries = 0;
   log.debug('Requested', this.pair, 'trade data from', this.exchange.name, '...');
   this._fetch(since);
+}
+
+Fetcher.prototype.fetchOB = function() {
+  log.debug('Requested', this.pair, 'orderbook data from', this.exchange.name, '...');
+  this.exchangeTrader.getOrderbook(this.processOrderbook);
+}
+
+Fetcher.prototype.processOrderbook = function(err, ob) {
+  if(err || _.isEmpty(ob)) {
+    if(err) {
+      log.warn(this.exchange.name, 'returned an error while fetching orderbook:', err);
+    }
+    return;
+  }
+
+  let bid = Number(ob.bids[0][0]);
+  let ask = Number(ob.asks[0][0]);
+  let buySlippage = obUtil.getBuySlippageCurrency(100000, ob);
+  let sellSlippage = obUtil.getSellSlippageCurrency(100000, ob);
+  let depth = obUtil.depth(ob);
+
+  log.debug('Received orderbook data. bid:', bid,'ask:', ask, 'spread:', (((ask-bid)/ask)*100).toFixed(4) +'%,', 'depth:', depth.sellTotalMio + 'M/' + depth.buyTotalMio + 'M', 'sell/buy slippage 100k:', sellSlippage.mySlippage + '%/' + buySlippage.mySlippage +'% (' + sellSlippage.myPrice + ('/' + buySlippage.myPrice + ')'));
+  this.emit('orderbook', ob);
 }
 
 Fetcher.prototype.processTrades = function(err, trades) {

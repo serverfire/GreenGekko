@@ -27,6 +27,7 @@ var BudFox = function(config) {
   this.heart = new Heart;
   this.marketDataProvider = new MarketDataProvider(config);
   this.candleManager = new CandleManager;
+  this.enableOrderbookFetch = config.watch.fetchOrderbook !== undefined && config.watch.fetchOrderbook == true ? true : false;
 
   //    BudFox data flow:
 
@@ -42,6 +43,12 @@ var BudFox = function(config) {
     e => this.emit('marketStart', e)
   );
 
+  // relay an orderbook fetching event
+  this.marketDataProvider.on(
+    'orderbook',
+    ob => this.emit('orderbook', ob)
+  );
+
   // Output the candles
   this.candleManager.on(
     'candles',
@@ -51,13 +58,19 @@ var BudFox = function(config) {
   // on every `tick` retrieve trade data
   this.heart.on(
     'tick',
-    this.marketDataProvider.retrieve
+    () => {
+      this.marketDataProvider.retrieve();
+      if (this.enableOrderbookFetch) this.marketDataProvider.retrieveOB();
+    }
   );
 
   // on new trade data create candles
   this.marketDataProvider.on(
     'trades',
-    this.candleManager.processTrades
+    t => {
+      this.candleManager.processTrades(t);
+      this.emit('lastTrades', t);
+    }
   );
 
   this.heart.pump();

@@ -20,7 +20,8 @@ const Manager = function(config) {
 
   // relay newly fetched trades
   this.source
-    .on('trades batch', this.relayTrades);
+    .on('trades batch', this.relayTrades)
+    .on('orderbook', this.relayOB);
 }
 
 util.makeEventEmitter(Manager);
@@ -30,12 +31,19 @@ Manager.prototype.retrieve = function() {
   this.source.fetch();
 }
 
+Manager.prototype.retrieveOB = function() {
+  this.source.fetchOB();
+}
 
 Manager.prototype.relayTrades = function(batch) {
   this.sendMarketStart(batch);
   this.emit('marketUpdate', batch.last.date);
 
   this.emit('trades', batch);
+}
+
+Manager.prototype.relayOB = function(ob) {
+  this.emit('orderbook', ob);
 }
 
 Manager.prototype.sendMarketStart = _.once(function(batch) {
