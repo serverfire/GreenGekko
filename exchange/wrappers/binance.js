@@ -174,6 +174,29 @@ Trader.prototype.getTrades = function(since, callback, descending) {
   retry(undefined, fetch, processResults);
 };
 
+
+Trader.prototype.getOrderbook = function(callback) {  
+  const handle = (err, ob) => {
+    if (err) return callback(err);
+
+    var obStats = {};
+    //_.each(ob.result[this.pair], function(trade) {
+    //}, this);
+    if (this.exchange != undefined) obStats.exchange = this.exchange;
+    obStats.pair = this.asset + this.currency;
+    let pair = ob;
+    obStats.asks = pair.asks;
+    obStats.bids = pair.bids;
+
+    callback(undefined, obStats);
+  };
+
+  const reqData = { symbol: this.pair, limit: 1000 }
+  const fetch = cb => this.binance.depth(reqData, this.handleResponse('getOrderbook', cb, true));
+  retry(null, fetch, handle);
+}
+
+
 Trader.prototype.getPortfolio = function(callback) {
   const setBalance = (err, data) => {
     if (err) return callback(err);

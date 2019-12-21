@@ -18,6 +18,7 @@ config.watch = {
   // see https://gekko.wizb.it/docs/introduction/supported_exchanges.html
   exchange: 'binance',
   currency: 'USDT',
+  fetchOrderbook: true,
   asset: 'ETH',
 
   // You can set your own tickrate (refresh rate).

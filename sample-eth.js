@@ -20,6 +20,7 @@ config.watch = {
   exchange: 'kraken',
   currency: 'EUR',
   asset: 'ETH',
+  fetchOrderbook: true,
 
   // You can set your own tickrate (refresh rate).
   // If you don't set it, the defaults are 2 sec for
