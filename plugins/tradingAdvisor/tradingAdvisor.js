@@ -150,6 +150,10 @@ Actor.prototype.processRemoteCandle = function(rcandle) {
   this.strategy.onRemoteCandle(rcandle);
 }
 
+Actor.prototype.processOrderbook = function(ob) {
+  this.strategy.onOrderbook(ob);
+}
+
 // pass through shutdown handler
 Actor.prototype.finish = function(done) {
   this.strategy.finish(done);

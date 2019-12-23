@@ -150,9 +150,11 @@ PaperTrader.prototype.processAdvice = function(advice) {
       this.createTrigger(advice);
     }
   } else {
-    return log.warn(
+    // do not warn - advice event is used to transfer infomsg between plugins
+    return;
+    /*return log.warn(
       `[Papertrader] ignoring unknown advice recommendation: ${advice.recommendation}`
-    );
+    );*/
   }
 
   this.tradeId = 'trade-' + (++this.propogatedTrades);
