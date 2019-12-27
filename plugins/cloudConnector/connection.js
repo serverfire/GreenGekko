@@ -153,10 +153,11 @@ xmpp.on('mucmessage', (strMsg, from, to) => {
 
   if (onRemoteCandle !== undefined && msg.remote !== undefined && msg.remote === 'candle') {
     msg.candle.start = moment(Number(msg.candle.start) * 1000);
-    if (msg.candle.start.valueOf() > lastRemoteCandle.start.valueOf()) {
+    if (lastRemoteCandle[msg.exchange+msg.pair] == undefined) lastRemoteCandle[msg.exchange+msg.pair] = { start: moment(0) };
+    if (msg.candle.start.valueOf() > lastRemoteCandle[msg.exchange+msg.pair].start.valueOf()) {
       log.debug('\n⮈ ☁ ' + strMsg);
       onRemoteCandle(msg);
-      lastRemoteCandle = msg.candle;
+      lastRemoteCandle[msg.exchange+msg.pair] = _.clone(msg.candle);
     }
   }
   if (onRemoteAdvice !== undefined && msg.remote !== undefined && msg.remote === 'advice') {
@@ -166,7 +167,7 @@ xmpp.on('mucmessage', (strMsg, from, to) => {
   }
   if (onRemoteOrderbook !== undefined && msg.remote !== undefined && msg.remote === 'orderbook') {
     msg.orderbook.start = moment(Number(msg.orderbook.start) * 1000);
-    log.debug('\n⮈ ☁ ' + strMsg.substr(0,80) + '...');
+    log.debug('\n⮈ ☁ ' + strMsg.substr(0,90) + '...');
     onRemoteOrderbook(msg);
   }
 })
@@ -247,7 +248,7 @@ Conn.prototype.publishCandle = async function(candle) {
         `}` +
      `}`
 
-    log.debug('\n⮊ ☁ ' + msg);
+    log.debug('\n⮊ candle',config.cloudConnector.publishChannel,' ☁ ' + msg);
     this.sendChannelMsg(msg, config.cloudConnector.publishChannel + '@www.think5.de');
 }
 
