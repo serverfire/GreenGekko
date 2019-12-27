@@ -78,6 +78,7 @@ const recoverableErrors = [
   'CONNREFUSED',
   'NOTFOUND',
   'Error -1021',
+  'Error -2011',
   'Response code 429',
   'Response code 5',
   'Response code 403',
@@ -114,6 +115,11 @@ Trader.prototype.handleResponse = function(funcName, callback) {
         console.log(new Date, 'cancelOrder', 'UNKNOWN_ORDER');
         // order got filled in full before it could be
         // cancelled, meaning it was NOT cancelled.
+        return callback(false, {filled: true});
+      }
+
+      if(funcName === 'cancelOrder' && error.message.includes('Error -2011')) {
+        console.log(new Date, 'cancelOrder', 'Error -2011');
         return callback(false, {filled: true});
       }
 
