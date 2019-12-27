@@ -7,6 +7,7 @@ const config = util.getConfig();
 var lastRemoteCandle = { start: moment(0) };
 var onRemoteCandle;
 var onRemoteAdvice;
+var onRemoteOrderbook;
 
 const xmpp = client({
   service: 'xmpp://www.think5.de:5230',
@@ -36,6 +37,16 @@ xmpp.on('error', err => {
 xmpp.on('offline', () => {
   xmpp.options.authenticated = false;
   log.info('⏹ Cloud Connector: offline');
+})
+
+
+xmpp.on('online', () => {
+  log.info('☁ Gekko Cloud server connected.');
+})
+
+
+xmpp.on('disconnect', () => {
+  log.info('☁ Gekko Cloud server disconnected.');
 })
 
 
@@ -153,6 +164,11 @@ xmpp.on('mucmessage', (strMsg, from, to) => {
     log.debug('\n⮈ ☁ ' + strMsg);
     onRemoteAdvice(msg);
   }
+  if (onRemoteOrderbook !== undefined && msg.remote !== undefined && msg.remote === 'orderbook') {
+    msg.orderbook.start = moment(Number(msg.orderbook.start) * 1000);
+    log.debug('\n⮈ ☁ ' + strMsg.substr(0,80) + '...');
+    onRemoteOrderbook(msg);
+  }
 })
 
 xmpp.on('status', async status => {
@@ -244,6 +260,7 @@ Conn.prototype.publishAdvice = async function(advice) {
        `"remote": "advice", ` +
        `"pair": "${config.watch.asset.toLowerCase()}${config.watch.currency.toLowerCase()}", ` +
        `"exchange": "${config.watch.exchange.toLowerCase()}", ` +
+       `"strategy": "${config.tradingAdvisor.method}", ` +
        `"time": "${moment().utc().format()}", ` +
        `"advice": ${JSON.stringify(advice)}` +
    `}`
@@ -253,9 +270,27 @@ Conn.prototype.publishAdvice = async function(advice) {
 }
 
 
-Conn.prototype.registerListener = function(candle, advice) {
+Conn.prototype.publishOrderbook = async function(ob) {
+  if (!config.cloudConnector.publishOrderbook) return;
+  
+  let msg =
+  `{ ` +
+       `"remote": "orderbook", ` +
+       `"pair": "${config.watch.asset.toLowerCase()}${config.watch.currency.toLowerCase()}", ` +
+       `"exchange": "${config.watch.exchange.toLowerCase()}", ` +
+       `"time": "${moment().utc().format()}", ` +
+       `"orderbook": ${JSON.stringify(ob)}` +
+   `}`
+
+   log.debug('\n⮊ ☁ { "remote": "orderbook" ...}');
+  this.sendChannelMsg(msg, config.cloudConnector.publishChannel + '@www.think5.de');
+}
+
+
+Conn.prototype.registerListener = function(candle, advice, orderbook) {
   onRemoteCandle = candle;
   onRemoteAdvice = advice;
+  onRemoteOrderbook = orderbook;
 }
 
 

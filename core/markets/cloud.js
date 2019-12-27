@@ -13,6 +13,8 @@ const slug = config.watch.exchange.toLowerCase();
 const exchange = exchangeChecker.getExchangeCapabilities(slug);
 const log = require('../log.js');
 var Readable = require('stream').Readable;
+var myPair = config.watch.asset.toLowerCase() + config.watch.currency.toLowerCase();
+var myExchange = config.watch.exchange.toLowerCase();
 
 
 // ****************************************************************************
@@ -33,8 +35,10 @@ var Market = function(config, plugins) {
   _.each(plugins, function(plugin) {
     if (plugin.meta.slug === 'cloudConnector') {
         plugin.on('remoteCandle', rcandle => {
-            log.info(`Gekko Cloud: pipe candle data from remote market: ${rcandle.exchange}/${rcandle.pair}, ${rcandle.candle.close}`);
-            context.push(rcandle.candle);
+            if (rcandle.pair == myPair && rcandle.exchange == myExchange) {
+              log.info(`Gekko Cloud: pipe candle data from remote market: ${rcandle.exchange}/${rcandle.pair}, ${rcandle.candle.close}`);
+              context.push(rcandle.candle);
+            }
         });
     }
   });

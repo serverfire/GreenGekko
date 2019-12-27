@@ -69,8 +69,11 @@ var Base = function(settings) {
   if(!this.onAdvice)
     this.onAdvice = function() {};
 
-    if(!this.onRemoteAdvice)
+  if(!this.onRemoteAdvice)
     this.onRemoteAdvice = function() {};
+
+    if(!this.onRemoteOrderbook)
+    this.onRemoteOrderbook = function() {};
 
   if(!this.onCandle)
     this.onCandle = function() {};

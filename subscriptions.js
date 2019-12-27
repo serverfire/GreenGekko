@@ -60,6 +60,11 @@ var subscriptions = [
     handler: 'processRemoteCandle'
   },
   {
+    emitter: 'cloudConnector',
+    event: 'remoteOrderbook',
+    handler: 'processRemoteOrderbook'
+  },
+  {
     emitter: 'tradingAdvisor',
     event: 'stratCandle',
     handler: 'processStratCandle'

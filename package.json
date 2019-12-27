@@ -14,7 +14,7 @@
     "start": "node ./gekko --config config.js --ui"
   },
   "dependencies": {
-    "@xmpp/client": "^0.7.0",
+    "@xmpp/client": "^0.9.1",
     "async": "2.1.2",
     "axios": "^0.18.0",
     "bfx-hf-indicators": "git+https://github.com/mark-sch/bfx-hf-indicators.git",

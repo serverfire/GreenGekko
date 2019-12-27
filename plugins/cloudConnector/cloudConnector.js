@@ -6,7 +6,7 @@ var warmupCompleted = false;
 const Connector = function(done) {
     _.bindAll(this);
     this.mycon = new Connection();
-    this.mycon.registerListener(this.onRemoteCandle, this.onRemoteAdvice);
+    this.mycon.registerListener(this.onRemoteCandle, this.onRemoteAdvice, this.onRemoteOrderbook);
     done();
 };
 
@@ -17,7 +17,6 @@ Connector.prototype.onRemoteCandle = function(remoteCandle) {
     this.emit('remoteCandle', remoteCandle);
 };
 
-
 Connector.prototype.onRemoteAdvice = function (remoteAdvice) {
     if (!warmupCompleted) {
         log.info('Candle warmup is not completed yet, skipping remote advice!');
@@ -26,6 +25,10 @@ Connector.prototype.onRemoteAdvice = function (remoteAdvice) {
 
     remoteAdvice.advice.direction = remoteAdvice.advice.recommendation;
     this.emit('remoteAdvice', remoteAdvice);
+};
+
+Connector.prototype.onRemoteOrderbook = function(remoteOB) {
+    this.emit('remoteOrderbook', remoteOB);
 };
 
 
@@ -43,6 +46,11 @@ Connector.prototype.processAdvice = function(advice) {
     if (advice.recommendation === undefined) return;
 
     this.mycon.publishAdvice(advice);
+};
+
+
+Connector.prototype.processOrderbook = function(ob) {
+    this.mycon.publishOrderbook(ob);
 };
 
 

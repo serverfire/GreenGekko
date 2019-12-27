@@ -154,6 +154,10 @@ Actor.prototype.processOrderbook = function(ob) {
   this.strategy.onOrderbook(ob);
 }
 
+Actor.prototype.processRemoteOrderbook = function(rob) {
+  this.strategy.onRemoteOrderbook(rob);
+}
+
 // pass through shutdown handler
 Actor.prototype.finish = function(done) {
   this.strategy.finish(done);
