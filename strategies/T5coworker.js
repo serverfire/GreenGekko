@@ -23,6 +23,8 @@ const config = util.getConfig();
 
 var objcontext;
 var stratCW = {};
+var myPair = config.watch.asset.toLowerCase() + config.watch.currency.toLowerCase();
+var myExchange = config.watch.exchange.toLowerCase();
 
 
 stratCW.init = function (context) {
@@ -69,6 +71,26 @@ stratCW.onCandle = async function (candle) {
 
 
 // ***************************************************************************
+// * 1 Remote Orderbook from Gekko Cloud
+stratCW.onRemoteOrderbook = async function (ob) {
+    if (ob.pair == myPair && ob.exchange == myExchange) {
+        let ask = Number(ob.orderbook.asks[0][0]);
+
+        //in case orderbook price info is available, this event is faster than onCandle event
+        if (objcontext.t5coworker.slvalue > 0 && ask < objcontext.t5coworker.slvalue) {
+            objcontext.t5coworker.slvalue = 0;
+            objcontext.advice({ direction: 'short', setTakerLimit: config[config.tradingAdvisor.method].setTakerLimit, setSellAmount: config[config.tradingAdvisor.method].setSellAmount, origin: 'T5coworker', date: moment(), infomsg: 'Manual stop-Loss condition was met, current price: ' + ask + '. The strategy T5coworker gave advice to go SHORT. Note: previous stop-loss setting is now deleted.' });
+        }
+    
+        if (objcontext.t5coworker.tpvalue > 0 && ask > objcontext.t5coworker.tpvalue) {
+            objcontext.t5coworker.tpvalue = 0;
+            objcontext.advice({ direction: 'short', setTakerLimit: config[config.tradingAdvisor.method].setTakerLimit, setSellAmount: config[config.tradingAdvisor.method].setSellAmount, origin: 'T5coworker', date: moment(), infomsg: 'Manual take-Profit condition was met, current price: ' + ask + '. The strategy T5coworker gave advice to go LONG. Note: previous take-profit setting is now deleted.' });
+        }
+    }
+}
+
+
+// ***************************************************************************
 // * receive our own or foreign advices, e.g. from telegram bot
 // * we use the advice event here to share infos between plugins
 stratCW.onAdvice = function (advice) {
@@ -82,9 +104,6 @@ stratCW.onAdvice = function (advice) {
 stratCW.onRemoteAdvice = function (radvice) {
     //instead of writing our own trading strategy, we take the remote advice
     //and use it for own trade execution
-    
-    var myPair = config.watch.asset.toLowerCase() + config.watch.currency.toLowerCase();
-    var myExchange = config.watch.exchange.toLowerCase();
 
     log.info('We received a trading advice from the Gekko Cloud to go: ' + radvice.advice.recommendation);
 

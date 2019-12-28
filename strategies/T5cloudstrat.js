@@ -25,6 +25,8 @@ const log = require('../core/log.js');
 const config = util.getConfig();
 
 var cloudStrat = {};
+var myPair = config.watch.asset.toLowerCase() + config.watch.currency.toLowerCase();
+var myExchange = config.watch.exchange.toLowerCase();
 
 cloudStrat.init = function () {
     this.name = 'T5 cloud strategy';
@@ -67,6 +69,13 @@ cloudStrat.onRemoteAdvice = function (radvice) {
 
 cloudStrat.onRemoteCandle = function (rcandle) {
     //we could write our own stategy with 1M remotes candles here
+    log.debug('Received remote candle:', rcandle.close);
+}
+
+
+cloudStrat.onRemoteOrderbook = function (ob) {
+    //we could write our own stategy with remote orderbook snapshots here
+    log.debug('Received remote Orderbook, best ask price:', ob.asks[0][0]);
 }
 
 

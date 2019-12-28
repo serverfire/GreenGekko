@@ -1,4 +1,4 @@
-# Green Gekko 2019 r271 [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
+# Green Gekko 2020 r282 [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
 An Interactive Crypto Trading Bot, gekko backwards compatible
 
@@ -12,16 +12,19 @@ An Interactive Crypto Trading Bot, gekko backwards compatible
 
 **See screenshots folder**
 
-## New: Gekko Cloud integration
+## Beta: Gekko Cloud integration
 - Allows the connection of Gekko bot instances all over the world in realtime
+- Connect to remote candles, orderbooks and trading advices from several Gekko bots and exchange markets. Use this information in own trading strategies by listening to onRemoteAdvice, onRemoteCandle and onRemoteOrderbook strategy events.
 - Gekko Cloud has a fair-use principle, share your trading signals (but keep your strategy private) and get access to foreign strategy signals and candles. Give and take.
 - Write new trading strategies by combining remote advices/candles with local strategy coding. See sample [config](https://raw.githubusercontent.com/mark-sch/gekko/develop/config-cloudstrategy.js) and [strategy](https://raw.githubusercontent.com/mark-sch/gekko/develop/strategies/T5cloudstrat.js) to get started. Run: node gekko.js --config config-cloudstrategy.js
-- Subscribe to fair-use, free or paid Gekko Cloud channels. Signal publishers determine the category and fee.
 - Execute your strategy signals multiple times for friends or family crypto accounts
 - Uses fast TCP socket connections, extended XMPP protocol standards
 
 ## Green Gekko Features
 
+- Access to orderbook snapshots for higher frequency trading strategies
+   - enable orderbook fetching in config file, config.watch / fetchOrderbook: true, you may adjust tickrate: 4. Access onOrderbook event in strategies
+   - calculate orderbook metrics with /core/orderbookUtil.js helper lib.
 - Extended trading-strategy possibilities:
    - Heikin-Ashi candles core support, e.g. use candle.ha.close instead of candle.close inside your strategy
    - set trading amount while giving advice (e.g. buy with 50% of my portfolio)
