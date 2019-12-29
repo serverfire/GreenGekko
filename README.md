@@ -19,6 +19,7 @@ An Interactive Crypto Trading Bot, gekko backwards compatible
 - Write new trading strategies by combining remote advices/candles with local strategy coding. See sample [config](https://raw.githubusercontent.com/mark-sch/gekko/develop/config-cloudstrategy.js) and [strategy](https://raw.githubusercontent.com/mark-sch/gekko/develop/strategies/T5cloudstrat.js) to get started. Run: node gekko.js --config config-cloudstrategy.js
 - Execute your strategy signals multiple times for friends or family crypto accounts
 - Uses fast TCP socket connections, extended XMPP protocol standards
+- No db setup is needed when using Gekko Cloud market. Added config.adapter = 'nodb' config option.
 
 ## Green Gekko Features
 
