@@ -50,6 +50,10 @@ var util = {
       }
     }
 
+    if (_config.adapter == 'nodb' && (_config.cloudConnector == undefined || _config.cloudConnector.enabled == false || _config.cloudConnector.useCloudMarket == false)) {
+      util.die('Invalid config setting. config.adapter = \'nodb\' is only valid when using the Gekko Cloud market.', true);
+    }
+
     return _config;
   },
   // overwrite the whole config

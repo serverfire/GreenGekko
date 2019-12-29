@@ -213,7 +213,11 @@ config.backtestResultExporter = {
 //                       CONFIGURING ADAPTER
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-config.adapter = 'sqlite';
+config.adapter = 'nodb';
+
+config.nodb = {
+  path: 'plugins/nodb'
+}
 
 config.sqlite = {
   path: 'plugins/sqlite',
