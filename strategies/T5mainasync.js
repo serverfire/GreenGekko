@@ -181,6 +181,16 @@ stratMain.check60M = function(candle) {
 }
 
 
+// ***************************************************************************
+// * Receive orderbook data on every tick
+stratMain.onOrderbook = function(ob) {
+    let bid = Number(ob.bids[0][0]);
+    let ask = Number(ob.asks[0][0]);
+
+    log.debug('Strategy debug log, bid/ask price:', bid, '/', ask);
+}
+
+
 stratMain.log = function () {
 }
 
