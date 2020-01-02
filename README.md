@@ -81,6 +81,9 @@ An Interactive Crypto Trading Bot, gekko backwards compatible
 - cd ..
 - node gekko --config sample-eth.js --import --set debug=true
 - node gekko --config sample-eth.js --backtest --set debug=true
+- node gekko --config sample-eth.js
+
+While running the strategy with sample-eth.js config you should [see an output like this](https://git.io/Jex0a)
 
 from time to time the exchange markets should be updated with a utility - to get new coin pairs:
 
