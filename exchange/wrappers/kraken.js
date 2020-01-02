@@ -83,6 +83,11 @@ Trader.prototype.handleResponse = function(funcName, callback, nonMutating, payl
         error.backoffDelay = 2500;
       }
 
+      if(includes(error.message, ['Insufficient funds'])) {
+        console.log(new Date, 'Kraken: insufficientFunds');
+        error.type = 'insufficientFunds';
+      }
+
       if(nonMutating && includes(error.message, unknownResultErrors)) {
         // this call only tried to retrieve data, safe to redo
         error.notFatal = true;
