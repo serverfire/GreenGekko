@@ -1,6 +1,6 @@
 # Green Gekko 2020 r282 [![npm](https://img.shields.io/npm/dm/gekko.svg)]() [![Build Status](https://travis-ci.org/askmike/gekko.png)](https://travis-ci.org/askmike/gekko) [![Build status](https://ci.appveyor.com/api/projects/status/github/askmike/gekko?branch=stable&svg=true)](https://ci.appveyor.com/project/askmike/gekko)
 
-An Interactive Crypto Trading Bot, gekko backwards compatible
+A crypto trading bot written in Node.js, gekko backwards compatible. GreenGekko has the focus on spot markets, while [RedGekko](https://github.com/mark-sch/RedGekko) supports trading on Futures.
 
 | Test your own trading strategies and view backtests in the browser |
 | ------------------------ |
