@@ -90,12 +90,12 @@ PaperTrader.prototype.updatePosition = function(what) {
     this.trades++;
   }
 
-  // virtually trade all {currency} to {asset}
+  // virtually trade all {asset} to {currency}
   // at the current price (minus fees)
   else if(what === 'short') {
     cost = (1 - this.fee) * (this.portfolio.asset * this.price);
+    amount = this.portfolio.asset;
     this.portfolio.currency += this.extractFee(this.portfolio.asset * this.price);
-    amount = this.portfolio.currency / this.price;
     this.portfolio.asset = 0;
 
     this.exposed = false;
@@ -186,7 +186,7 @@ PaperTrader.prototype.processAdvice = function(advice) {
     origin: advice.origin,
     infomsg: advice.infomsg, 
     setTakerLimit: advice.setTakerLimit,
-    portfolio: this.portfolio,
+    portfolio: _.clone(this.portfolio),
     balance: this.getBalance(),
     date: advice.date,
     effectivePrice,
