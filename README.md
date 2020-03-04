@@ -101,6 +101,8 @@ See further info how to get started and how to setup postgresql from [crypto49er
 >
 > **pm2 start gekko.js -i 1 --name "gekko-bnb" -- --config config-bnb.js**
 
+A more detailed guide for Ubuntu Linux can be found [here](https://github.com/mark-sch/GreenGekko/blob/develop/docs/installation/installing_gekko_on_ubuntu_linux.md) and in the [install documentation](https://github.com/mark-sch/GreenGekko/tree/develop/docs/installation)
+
 ## Documentation
 
 See [the documentation website](https://gekko.wizb.it/docs/introduction/about_gekko.html).
