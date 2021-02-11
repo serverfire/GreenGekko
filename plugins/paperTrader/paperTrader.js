@@ -7,6 +7,7 @@ const ENV = util.gekkoEnv();
 const config = util.getConfig();
 const calcConfig = config.paperTrader;
 const watchConfig = config.watch;
+const shortTrading = config.performanceAnalyzer.shortTrading;
 const dirs = util.dirs();
 const log = require(dirs.core + 'log');
 
@@ -33,8 +34,11 @@ const PaperTrader = function() {
 
   this.balance = false;
 
-  if(this.portfolio.asset > 0) {
+  if(this.portfolio.asset > 0 && !shortTrading) {
     this.exposed = true;
+  }
+  else {
+    this.exposed = false;
   }
 
   this.propogatedTrades = 0;
@@ -78,28 +82,63 @@ PaperTrader.prototype.updatePosition = function(what) {
   let cost;
   let amount;
 
-  // virtually trade all {currency} to {asset}
-  // at the current price (minus fees)
-  if(what === 'long') {
-    cost = (1 - this.fee) * this.portfolio.currency;
-    this.portfolio.asset += this.extractFee(this.portfolio.currency / this.price);
-    amount = this.portfolio.asset;
-    this.portfolio.currency = 0;
+  if (!shortTrading) {
+    // virtually trade all {currency} to {asset}
+    // at the current price (minus fees)
+    if(what === 'long') {
+      cost = (1 - this.fee) * this.portfolio.currency;
+      this.portfolio.asset += this.extractFee(this.portfolio.currency / this.price);
+      amount = this.portfolio.asset;
+      this.portfolio.currency = 0;
 
-    this.exposed = true;
-    this.trades++;
+      this.exposed = true;
+      this.trades++;
+    }
+
+    // virtually trade all {asset} to {currency}
+    // at the current price (minus fees)
+    else if(what === 'short') {
+      cost = (1 - this.fee) * (this.portfolio.asset * this.price);
+      amount = this.portfolio.asset;
+      this.portfolio.currency += this.extractFee(this.portfolio.asset * this.price);
+      this.portfolio.asset = 0;
+
+      this.exposed = false;
+      this.trades++;
+    }
   }
+  else {
+    if(what === 'long') { //actually a closing short
+      if (this.portfolio.asset == 0) {
+        this.portfolio.asset = this.portfolio.currency / this.price;
+        this.portfolio.previouscurrency = this.portfolio.currency;
+        this.portfolio.currency = 0;
+      }
 
-  // virtually trade all {asset} to {currency}
-  // at the current price (minus fees)
-  else if(what === 'short') {
-    cost = (1 - this.fee) * (this.portfolio.asset * this.price);
-    amount = this.portfolio.asset;
-    this.portfolio.currency += this.extractFee(this.portfolio.asset * this.price);
-    this.portfolio.asset = 0;
+      cost = (1 - this.fee) * (this.portfolio.asset * this.price);
+      amount = this.portfolio.asset; //0    1.18*928=1095    
+      this.portfolio.currency = this.extractFee(this.portfolio.asset * this.price);
+      this.portfolio.currency = this.portfolio.previouscurrency + (this.portfolio.previouscurrency - this.portfolio.currency);
+      this.portfolio.asset = 0;
 
-    this.exposed = false;
-    this.trades++;
+      this.exposed = false;
+      this.trades++;
+    }
+    else if(what === 'short') { //actually an opening short
+      if (this.portfolio.currency == 0) {
+        this.portfolio.currency = this.portfolio.asset * this.price;
+        this.portfolio.asset = 0;
+      }
+      
+      cost = (1 - this.fee) * this.portfolio.currency;
+      this.portfolio.asset += this.extractFee(this.portfolio.currency / this.price);
+      amount = this.portfolio.asset;
+      this.portfolio.previouscurrency = this.extractFee(this.portfolio.currency);
+      this.portfolio.currency = 0;
+
+      this.exposed = true;
+      this.trades++;
+    }
   }
 
   const effectivePrice = this.price * this.fee;

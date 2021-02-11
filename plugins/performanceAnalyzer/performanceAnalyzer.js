@@ -10,6 +10,7 @@ const ENV = util.gekkoEnv();
 const config = util.getConfig();
 const perfConfig = config.performanceAnalyzer;
 const watchConfig = config.watch;
+const shortTrading = perfConfig.shortTrading != undefined ? perfConfig.shortTrading : false;
 
 const Logger = require('./logger');
 
@@ -93,7 +94,13 @@ PerformanceAnalyzer.prototype.processCandle = function(candle, done) {
 }
 
 PerformanceAnalyzer.prototype.emitRoundtripUpdate = function() {
-  const uPnl = this.price - this.roundTrip.entry.price;
+  var uPnl;
+  if (shortTrading) {
+    uPnl = this.roundTrip.entry.price - this.price;
+  }
+  else {
+    uPnl = this.price - this.roundTrip.entry.price;
+  }
 
   this.deferredEmit('roundtripUpdate', {
     at: this.dates.end,
@@ -108,7 +115,12 @@ PerformanceAnalyzer.prototype.processTradeCompleted = function(trade) {
   this.portfolio = trade.portfolio;
   this.balance = trade.balance;
 
-  this.registerRoundtripPart(trade);
+  if (shortTrading) {
+    this.registerShortRoundtripPart(trade);
+  }
+  else {
+    this.registerRoundtripPart(trade);
+  }
 
   const report = this.calculateReportStatistics();
   if(report) {
@@ -147,6 +159,36 @@ PerformanceAnalyzer.prototype.registerRoundtripPart = function(trade) {
   }
 }
 
+PerformanceAnalyzer.prototype.registerShortRoundtripPart = function(trade) {
+  if(this.trades === 1 && trade.action === 'buy') {
+    // this is not part of a valid roundtrip
+    return;
+  }
+
+  if(trade.action === 'buy') {
+    this.roundTrip.exit = {
+      date: trade.date,
+      price: trade.price,
+      total: trade.portfolio.currency + (trade.portfolio.asset * trade.price),
+    }
+    this.openRoundTrip = false;
+
+    this.handleCompletedShortRoundtrip();
+  } else if(trade.action === 'sell') {
+    if (this.roundTrip.exit) {
+      this.roundTrip.id++;
+      this.roundTrip.exit = false
+    }
+
+    this.roundTrip.entry = {
+      date: trade.date,
+      price: trade.price,
+      total: trade.portfolio.currency + (trade.portfolio.asset * trade.price),
+    }
+    this.openRoundTrip = true;
+  }
+}
+
 PerformanceAnalyzer.prototype.handleCompletedRoundtrip = function() {
   var roundtrip = {
     id: this.roundTrip.id,
@@ -175,6 +217,38 @@ PerformanceAnalyzer.prototype.handleCompletedRoundtrip = function() {
   this.exposure = this.exposure + Date.parse(this.roundTrip.exit.date) - Date.parse(this.roundTrip.entry.date);
   // track losses separately for downside report
   if (roundtrip.exitBalance < roundtrip.entryBalance)
+    this.losses.push(roundtrip);
+
+}
+
+PerformanceAnalyzer.prototype.handleCompletedShortRoundtrip = function() {
+  var roundtrip = {
+    id: this.roundTrip.id,
+
+    entryAt: this.roundTrip.entry.date,
+    entryPrice: this.roundTrip.entry.price,
+    entryBalance: this.roundTrip.entry.total,
+
+    exitAt: this.roundTrip.exit.date,
+    exitPrice: this.roundTrip.exit.price,
+    exitBalance: this.roundTrip.exit.total,
+
+    duration: this.roundTrip.exit.date.diff(this.roundTrip.entry.date)
+  }
+
+  roundtrip.pnl = roundtrip.exitBalance - roundtrip.entryBalance;
+  roundtrip.profit = (100 * roundtrip.exitBalance / roundtrip.entryBalance) - 100;
+
+  this.roundTrips[this.roundTrip.id] = roundtrip;
+
+  this.logger.handleRoundtrip(roundtrip);
+
+  this.deferredEmit('roundtrip', roundtrip);
+
+  // update cached exposure
+  this.exposure = this.exposure + Date.parse(this.roundTrip.exit.date) - Date.parse(this.roundTrip.entry.date);
+  // track losses separately for downside report
+  if (roundtrip.exitBalance > roundtrip.entryBalance)
     this.losses.push(roundtrip);
 
 }

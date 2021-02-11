@@ -65,11 +65,12 @@ config.T5mainasync = {
     optInTimePeriod: 14
   },
   thresholds: {
-    RSIhigh: 66,
-    RSIlow: 44,
+    RSIhigh: 66, //66 //66
+    RSIlow: 44, //44 //41
     MACDhigh: 0,
-    MACDlow: 0.88,
+    MACDlow: 1, //0.88
     TEMAmin: 100.065,
+    TEMAmax: 100.065, //99.935,
     persistance: 1
   }
 };
@@ -100,6 +101,7 @@ config.paperTrader = {
 }
 
 config.performanceAnalyzer = {
+  shortTrading: true,
   enabled: true,
   riskFreeReturn: 5
 }
@@ -125,8 +127,8 @@ config.profitSimulator = {
   enabled: true,
   reportInCurrency: true,
   simulationBalance: {
-    asset: 1,
-    currency: 0,
+    asset: 0,
+    currency: 1000,
   },
   verbose: true,
   fee: 0.25,

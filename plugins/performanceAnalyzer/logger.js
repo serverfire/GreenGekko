@@ -10,6 +10,10 @@ const mode = util.gekkoMode();
 const log = require(dirs.core + 'log');
 const colors = require('colors/safe');
 
+const config = util.getConfig();
+const perfConfig = config.performanceAnalyzer;
+const shortTrading = perfConfig.shortTrading != undefined ? perfConfig.shortTrading : false;
+
 const Logger = function(watchConfig) {
   this.currency = watchConfig.currency;
   this.asset = watchConfig.asset;
@@ -64,26 +68,51 @@ if(mode === 'backtest') {
     var at = trade.date.format('YYYY-MM-DD HH:mm:ss');
 
 
-    if(trade.action === 'sell') {
+    if (!shortTrading) {
+      if(trade.action === 'sell') {
+          let tradeType = trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
+          let trailPercent = tradeType == 'trailingStop' ? ' ' + trade.trigger.trailPercentage + '%' : '';
+          let trailSLInfo = tradeType !== '' && trailPercent !== '' ? ` (${tradeType}${trailPercent})` : '';
+
+          log.info(
+            `${at}: Paper trader simulated a SELL${trailSLInfo} @ ${trade.price.toFixed(2)} ${this.currency}`,
+            `\t${this.round(trade.portfolio.currency)}`,
+            `${this.currency} <= ${this.round(trade.portfolio.asset)}`,
+            `${this.asset}`
+          );
+      }
+      else if(trade.action === 'buy') {
+        log.info(
+          `${at}: Paper trader simulated a BUY @ ${trade.price.toFixed(2)} ${this.currency}`,
+          `\t\t${this.round(trade.portfolio.currency)}`,
+          `${this.currency}\t=> ${this.round(trade.portfolio.asset)}`,
+          `${this.asset}`
+        );
+      }
+    }
+
+    if (shortTrading) {
+      if(trade.action === 'sell') {
         let tradeType = trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
         let trailPercent = tradeType == 'trailingStop' ? ' ' + trade.trigger.trailPercentage + '%' : '';
         let trailSLInfo = tradeType !== '' && trailPercent !== '' ? ` (${tradeType}${trailPercent})` : '';
 
         log.info(
-          `${at}: Paper trader simulated a SELL${trailSLInfo} @ ${trade.price.toFixed(2)} ${this.currency}`,
+          `${at}: Paper trader simulated an OPEN SHORT position${trailSLInfo} @ ${trade.price.toFixed(2)} ${this.currency}`,
           `\t${this.round(trade.portfolio.currency)}`,
           `${this.currency} <= ${this.round(trade.portfolio.asset)}`,
           `${this.asset}`
         );
+      }
+      else if(trade.action === 'buy') {
+        log.info(
+          `${at}: Paper trader simulated a CLOSE SHORT position @ ${trade.price.toFixed(2)} ${this.currency}`,
+          `\t\t${this.round(trade.portfolio.currency)}`,
+          `${this.currency}\t=> ${this.round(trade.portfolio.asset)}`,
+          `${this.asset}`
+        );
+      }
     }
-    else if(trade.action === 'buy')
-
-      log.info(
-        `${at}: Paper trader simulated a BUY @ ${trade.price.toFixed(2)} ${this.currency}`,
-        `\t\t${this.round(trade.portfolio.currency)}`,
-        `${this.currency}\t=> ${this.round(trade.portfolio.asset)}`,
-        `${this.asset}`
-      );
   }
 
   Logger.prototype.finalize = function(report) {
