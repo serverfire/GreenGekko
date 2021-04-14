@@ -39,7 +39,7 @@ var DONE = false;
 
 var result = [];
 var reader = new Reader();
-var batcher;
+let batcher;
 var next;
 var doneFn = () => {
   process.nextTick(() => {
@@ -76,15 +76,15 @@ const batchHistoryData = function(rows, i, next) {
   setTimeout(function timer(){
     let arr = [];
     arr[0] = rows[i];
-    context.batcher.write(arr);
-    context.batcher.flush();
+    batcher.write(arr);
+    batcher.flush();
 
     if (i+1 == rows.length) {
       log.debug('Strategy warmup with history data is complete');
       setTimeout(next, 100);
     }
     else {
-      context.batchHistoryData(rows, ++i, next);
+      batchHistoryData(rows, ++i, next);
     }
   }, 5);
 }
