@@ -281,7 +281,7 @@ Trader.prototype.getTicker = function(callback) {
     callback(undefined, ticker);
   };
 
-  const handler = cb => this.binance._makeRequest({}, this.handleResponse('getTicker', cb), 'api/v1/ticker/allBookTickers');
+  const handler = cb => this.binance._makeRequest({}, this.handleResponse('getTicker', cb), 'api/v3/ticker/bookTicker');//'api/v1/ticker/allBookTickers'
   retry(undefined, handler, setTicker);
 };
 
