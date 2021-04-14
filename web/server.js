@@ -115,6 +115,7 @@ app
   .use(router.allowedMethods());
 
 server.timeout = config.api.timeout || 120000;
+server.keepAliveTimeout = config.api.keepAliveTimeout || 60000 * 2;
 server.on('request', app.callback());
 server.listen(config.api.port, config.api.host, '::', () => {
   const host = `${config.ui.host}:${config.ui.port}${config.ui.path}`;
