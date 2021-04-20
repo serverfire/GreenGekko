@@ -81,6 +81,9 @@ var Base = function(settings) {
   if(!this.onRemoteCandle)
     this.onRemoteCandle = function() {};
 
+  if(!this.onOrderbook)
+    this.onOrderbook = function() {};
+
   if(_.isNumber(this.requiredHistory)) {
     log.debug('Ignoring strategy\'s required history, using the "config.tradingAdvisor.historySize" instead.');
   }

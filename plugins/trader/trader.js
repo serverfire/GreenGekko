@@ -144,8 +144,8 @@ Trader.prototype.processCandle = function(candle, done) {
 
 Trader.prototype.processAdvice = function(advice) {
   let direction;
-  let configBuyAmount = config[config.tradingAdvisor.method].setBuyAmount !== undefined ? config[config.tradingAdvisor.method].setBuyAmount : '98%';
-  let configSellAmount = config[config.tradingAdvisor.method].setSellAmount !== undefined ? config[config.tradingAdvisor.method].setSellAmount : '100%';
+  let configBuyAmount = config[config.tradingAdvisor.method] !== undefined && config[config.tradingAdvisor.method].setBuyAmount !== undefined ? config[config.tradingAdvisor.method].setBuyAmount : '98%';
+  let configSellAmount = config[config.tradingAdvisor.method] !== undefined && config[config.tradingAdvisor.method].setSellAmount !== undefined ? config[config.tradingAdvisor.method].setSellAmount : '100%';
   let setTakerLimit = advice.setTakerLimit !== undefined ? advice.setTakerLimit : 0;
   let setBuyAmount = advice.setBuyAmount !== undefined ? advice.setBuyAmount : configBuyAmount;
   let setSellAmount = advice.setSellAmount !== undefined ? advice.setSellAmount : configSellAmount;
